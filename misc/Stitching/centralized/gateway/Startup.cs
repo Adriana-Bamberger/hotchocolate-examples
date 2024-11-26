@@ -2,6 +2,7 @@ using System;
 using HotChocolate.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -31,6 +32,12 @@ namespace Demo.Gateway
                 .AddRemoteSchema(Products, ignoreRootTypes: true)
                 .AddRemoteSchema(Reviews, ignoreRootTypes: true)
                 .AddTypeExtensionsFromFile("./Stitching.graphql");
+            services.AddHttpLogging(logging =>
+            {
+                logging.LoggingFields = HttpLoggingFields.All;
+                logging.RequestBodyLogLimit = 4096;
+                logging.ResponseBodyLogLimit = 4096;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -39,6 +46,7 @@ namespace Demo.Gateway
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseHttpLogging();
             }
 
             app.UseRouting();
